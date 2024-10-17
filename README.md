@@ -1,8 +1,6 @@
 # LinearRegresion_Sprawozdania
 Nazwa programu: Regresja liniowa z niepewnościami
 
-Autor: [Krzysztof Bezubik]
-
 Opis:
 Program wykonuje regresję liniową na zestawie danych wejściowych, które składają się z par wartości $(X, Y)$. Program może uwzględniaćniepewności zarówno dla wartości $X$, jak i $Y$, co umożliwia bardziej dokładne obliczenie współczynników regresji.
 
