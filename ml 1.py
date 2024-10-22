@@ -1,10 +1,36 @@
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
+import os
+import pandas as pd
+import torch
+import torch.nn as nn
 import numpy as np
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
 
-# Dane Y i X
-X = np.array([[43.4], [39], [53.6], [47.4],[17.4]])  # Wartości X (L)
-Y = np.array([ 1.75, 1.54,2.17,1.92,0.71])  # Wartości Y  (T^2)
+# 0. Otwieranie danych
+file_path = 'lab_1_dane.xlsx'
+# Sprawdzenie, czy plik istnieje
+if os.path.exists(file_path):
+    # odczytanie danych z arkusza 
+    df = pd.read_excel(file_path, sheet_name='Arkusz1')
+    print(df.head())
+else:
+    print(f"Plik {file_path} nie istnieje. Upewnij się, że plik znajduje się w odpowiednim folderze.")
+
+
+# 1. Przygotowanie danych
+# Przykładowe dane: temperatury (T) i odpowiadające im zmiany objętości (delta_V)
+X = df['X'].values  # Zmiana objętości w m^3
+Y = df['Y'].values  # Temperatura w Kelvinach
+
+
+# Konwersja danych do tensorów PyTorch
+temperatures = torch.tensor(temperatures, dtype=torch.float32).reshape(-1, 1)  # reshaping na kolumnę
+delta_volumes = torch.tensor(delta_volumes, dtype=torch.float32).reshape(-1, 1)
+
+# Konwersja tensorów do numpy arrays dla sklearn
+Y = temperatures.numpy()
+X = delta_volumes.numpy()
 
 # Inicjalizacja modelu regresji liniowej
 model = LinearRegression()
@@ -14,8 +40,6 @@ model.fit(X, Y)
 
 # Predykcja wartości Y dla danych X
 Y_pred = model.predict(X)
-
-
 
 # Obliczanie współczynników regresji
 A = model.coef_[0]
@@ -30,15 +54,15 @@ print("Niepewność współczynnika nachylenia A (Delta_A):", Delta_A)
 print("Wyraz wolny (B):", B)
 print("Niepewność wyrazu wolnego B (Delta_B):", Delta_B)
 
-#Wstawianie niepewności
-#Delta_Y = np.array([0.00] * len(Y))  # Niepewność Y
-#Delta_X = np.array([0.0001, 0.0001, 0.0001, 0.0003, 0.0002, 0.0001, 0.0003, 0.0003, 0.00021, 0.0003])  # Niepewność X
-# Rysowanie wykresu
-plt.errorbar(X.flatten(), Y, fmt='o', color='blue', label='Dane z niepewnościami')
+# Zakładamy, że Delta_X i Delta_Y są obliczone wcześniej
+Delta_X = np.full_like(X, 0.1)  # Przykładowa niepewność dla X
+Delta_Y = np.full_like(Y, 0.2)  # Przykładowa niepewność dla Y
+
+# Rysowanie wykresu z niepewnościami
+plt.errorbar(X.flatten(), Y, xerr=Delta_X, yerr=Delta_Y, fmt='o', color='blue', label='Dane z niepewnościami')
 plt.plot(X.flatten(), Y_pred, color='red', linewidth=2, label='Regresja liniowa')
 plt.xlabel('$X$')
 plt.ylabel('$Y$')
 plt.title('Regresja liniowa z niepewnościami')
 plt.legend()
-plt.grid(True)
 plt.show()
